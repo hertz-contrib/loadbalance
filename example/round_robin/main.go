@@ -29,6 +29,10 @@ import (
 
 func main() {
 	cli, err := client.NewClient()
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 	lb := loadbalanceEx.NewRoundRobinBalancer()
 	opt := loadbalance.Options{
 		RefreshInterval: 10 * time.Second,
