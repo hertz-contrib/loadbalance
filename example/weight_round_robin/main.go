@@ -17,13 +17,14 @@
 package main
 
 import (
+	"log"
+	"time"
+
 	"github.com/cloudwego/hertz/pkg/app/client"
 	"github.com/cloudwego/hertz/pkg/app/client/loadbalance"
 	"github.com/cloudwego/hertz/pkg/app/middlewares/client/sd"
 	loadbalanceEx "github.com/hertz-contrib/loadbalance"
 	"github.com/hertz-contrib/registry/nacos"
-	"log"
-	"time"
 )
 
 func main() {
