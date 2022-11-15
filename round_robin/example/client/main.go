@@ -25,7 +25,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app/client/loadbalance"
 	"github.com/cloudwego/hertz/pkg/app/middlewares/client/sd"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/hertz-contrib/loadbalance/roundrobin"
+	loadbalanceEx "github.com/hertz-contrib/loadbalance/round_robin"
 	"github.com/hertz-contrib/registry/nacos"
 )
 
@@ -35,7 +35,7 @@ func main() {
 		log.Fatal(err)
 		return
 	}
-	lb := roundrobin.NewRoundRobinBalancer()
+	lb := loadbalanceEx.NewRoundRobinBalancer()
 	opt := loadbalance.Options{
 		RefreshInterval: 10 * time.Second,
 		ExpireInterval:  25 * time.Second,
