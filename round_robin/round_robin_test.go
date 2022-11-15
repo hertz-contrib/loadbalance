@@ -17,7 +17,10 @@
 package roundrobin
 
 import (
+	"fmt"
+	"net"
 	"strconv"
+	"sync"
 	"testing"
 
 	"github.com/cloudwego/hertz/pkg/app/client/discovery"
@@ -40,7 +43,6 @@ func TestRoundRobinBalancer(t *testing.T) {
 	balancer.Rebalance(e)
 	ins = balancer.Pick(e)
 	assert.DeepEqual(t, ins, nil)
-
 	// one instance
 	insList := []discovery.Instance{
 		discovery.NewInstance("tcp", "127.0.0.1:8888", 0, nil),
@@ -77,4 +79,46 @@ func TestRoundRobinBalancer(t *testing.T) {
 		expectedAddr := "127.0.0.1:888" + strconv.Itoa(i%6)
 		assert.DeepEqual(t, expectedAddr, addr.String())
 	}
+}
+
+func TestRaceProblem(t *testing.T) {
+	var insList []discovery.Instance
+	for i := 0; i < 1010; i++ {
+		insList = append(insList, discovery.NewInstance("tcp", fmt.Sprintf("127.0.0.1:%d", 8000+i), 0, nil))
+	}
+
+	e := discovery.Result{
+		Instances: insList,
+		CacheKey:  "c",
+	}
+
+	balancer := NewRoundRobinBalancer()
+	var wg sync.WaitGroup
+	var mutex sync.Mutex
+	var addr1, addr2 net.Addr
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for i := 0; i < 500; i++ {
+			mutex.Lock()
+			ins := balancer.Pick(e)
+			addr1 = ins.Address()
+			assert.NotEqual(t, addr1, addr2)
+			mutex.Unlock()
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for i := 0; i < 500; i++ {
+			mutex.Lock()
+			ins := balancer.Pick(e)
+			addr2 = ins.Address()
+			assert.NotEqual(t, addr1, addr2)
+			mutex.Unlock()
+		}
+	}()
+	wg.Wait()
 }

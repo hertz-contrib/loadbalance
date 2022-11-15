@@ -32,7 +32,7 @@ type roundRobinBalancer struct {
 
 type roundRobinInfo struct {
 	instances []discovery.Instance
-	index     atomic.Value
+	index     uint32
 }
 
 // NewRoundRobinBalancer creates a loadbalancer using round-robin algorithm.
@@ -46,11 +46,9 @@ func (rr *roundRobinBalancer) Pick(e discovery.Result) discovery.Instance {
 	ri, ok := rr.cachedInfo.Load(e.CacheKey)
 	if !ok {
 		ri, _, _ = rr.sfg.Do(e.CacheKey, func() (interface{}, error) {
-			aV := atomic.Value{}
-			aV.Store(0)
 			return &roundRobinInfo{
 				instances: e.Instances,
-				index:     aV,
+				index:     0,
 			}, nil
 		})
 		rr.cachedInfo.Store(e.CacheKey, ri)
@@ -61,24 +59,27 @@ func (rr *roundRobinBalancer) Pick(e discovery.Result) discovery.Instance {
 		return nil
 	}
 
-	lens := len(r.instances)
-	if r.index.Load().(int) >= lens {
-		r.index.Store(0)
-	}
-
-	instance := r.instances[r.index.Load().(int)]
-	r.index.Store((r.index.Load().(int) + 1) % lens)
+	var wg sync.WaitGroup
+	var instance discovery.Instance
+	var newIdx uint32
+	wg.Add(1)
+	go func() {
+		newIdx = atomic.AddUint32(&r.index, 1)
+		instance = r.instances[newIdx-1]
+		lens := len(r.instances)
+		atomic.StoreUint32(&r.index, (newIdx)%uint32(lens))
+		wg.Done()
+	}()
+	wg.Wait()
 
 	return instance
 }
 
 // Rebalance implements the Loadbalancer interface.
 func (rr *roundRobinBalancer) Rebalance(e discovery.Result) {
-	aV := atomic.Value{}
-	aV.Store(0)
 	rr.cachedInfo.Store(e.CacheKey, &roundRobinInfo{
 		instances: e.Instances,
-		index:     aV,
+		index:     0,
 	})
 }
 
