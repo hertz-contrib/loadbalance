@@ -73,7 +73,7 @@ import (
     "github.com/cloudwego/hertz/pkg/app/client/loadbalance"
     "github.com/cloudwego/hertz/pkg/app/middlewares/client/sd"
     "github.com/cloudwego/hertz/pkg/common/hlog"
-    "github.com/hertz-contrib/loadbalance/weightroundrobin"
+    loadbalanceEx "github.com/hertz-contrib/loadbalance/weight_round_robin"
     "github.com/hertz-contrib/registry/nacos"
 )
 
@@ -83,7 +83,7 @@ func main() {
         log.Fatal(err)
         return
     }
-    lb := weightroundrobin.NewWeightRoundRobinBalancer()
+    lb := loadbalanceEx.NewWeightRoundRobinBalancer()
     opt := loadbalance.Options{
         RefreshInterval: 10 * time.Second,
         ExpireInterval:  25 * time.Second,
@@ -101,5 +101,5 @@ func main() {
         }
         hlog.Infof("code=%d,body=%s\n", status, string(body))
     }
-}
+    }
 ```
