@@ -18,6 +18,7 @@ package roundrobin
 
 import (
 	"sync"
+	"sync/atomic"
 
 	"github.com/cloudwego/hertz/pkg/app/client/discovery"
 	"github.com/cloudwego/hertz/pkg/app/client/loadbalance"
@@ -31,7 +32,7 @@ type roundRobinBalancer struct {
 
 type roundRobinInfo struct {
 	instances []discovery.Instance
-	index     int
+	index     atomic.Value
 }
 
 // NewRoundRobinBalancer creates a loadbalancer using round-robin algorithm.
@@ -45,9 +46,11 @@ func (rr *roundRobinBalancer) Pick(e discovery.Result) discovery.Instance {
 	ri, ok := rr.cachedInfo.Load(e.CacheKey)
 	if !ok {
 		ri, _, _ = rr.sfg.Do(e.CacheKey, func() (interface{}, error) {
+			aV := atomic.Value{}
+			aV.Store(0)
 			return &roundRobinInfo{
 				instances: e.Instances,
-				index:     0,
+				index:     aV,
 			}, nil
 		})
 		rr.cachedInfo.Store(e.CacheKey, ri)
@@ -59,21 +62,23 @@ func (rr *roundRobinBalancer) Pick(e discovery.Result) discovery.Instance {
 	}
 
 	lens := len(r.instances)
-	if r.index >= lens {
-		r.index = 0
+	if r.index.Load().(int) >= lens {
+		r.index.Store(0)
 	}
 
-	instance := r.instances[r.index]
-	r.index = (r.index + 1) % lens
+	instance := r.instances[r.index.Load().(int)]
+	r.index.Store((r.index.Load().(int) + 1) % lens)
 
 	return instance
 }
 
 // Rebalance implements the Loadbalancer interface.
 func (rr *roundRobinBalancer) Rebalance(e discovery.Result) {
+	aV := atomic.Value{}
+	aV.Store(0)
 	rr.cachedInfo.Store(e.CacheKey, &roundRobinInfo{
 		instances: e.Instances,
-		index:     0,
+		index:     aV,
 	})
 }
 
