@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package http2
+package loadbalance
 
 // Name and Version info of this framework, used for statistics and debug
 const (
