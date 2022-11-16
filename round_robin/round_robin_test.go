@@ -94,15 +94,18 @@ func TestRaceProblem(t *testing.T) {
 
 	balancer := NewRoundRobinBalancer()
 	var wg sync.WaitGroup
+	var mutex sync.Mutex
 	var addr1, addr2 net.Addr
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		for i := 0; i < 500; i++ {
+			mutex.Lock()
 			ins := balancer.Pick(e)
 			addr1 = ins.Address()
 			assert.NotEqual(t, addr1, addr2)
+			mutex.Unlock()
 		}
 	}()
 
@@ -110,9 +113,11 @@ func TestRaceProblem(t *testing.T) {
 	go func() {
 		defer wg.Done()
 		for i := 0; i < 500; i++ {
+			mutex.Lock()
 			ins := balancer.Pick(e)
 			addr2 = ins.Address()
 			assert.NotEqual(t, addr1, addr2)
+			mutex.Unlock()
 		}
 	}()
 	wg.Wait()
