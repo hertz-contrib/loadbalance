@@ -87,6 +87,8 @@ func (rr *weightRoundRobinBalancer) Pick(e discovery.Result) discovery.Instance 
 	}
 
 	var bestIdx int
+	var mu sync.Mutex
+	mu.Lock()
 	for idx := range e.Instances {
 		atomic.AddInt32(&r.currentWeight[idx], r.effectiveWeight[idx])
 		// Pick the index with the biggest weight
@@ -94,8 +96,8 @@ func (rr *weightRoundRobinBalancer) Pick(e discovery.Result) discovery.Instance 
 			bestIdx = idx
 		}
 	}
-
-	r.currentWeight[bestIdx] -= int32(r.weightSum)
+	mu.Unlock()
+	atomic.AddInt32(&r.currentWeight[bestIdx], -int32(r.weightSum))
 	return e.Instances[bestIdx]
 }
 
