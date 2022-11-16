@@ -18,6 +18,7 @@ package weightroundrobin
 
 import (
 	"sync"
+	"sync/atomic"
 
 	"github.com/cloudwego/hertz/pkg/app/client/discovery"
 	"github.com/cloudwego/hertz/pkg/app/client/loadbalance"
@@ -32,9 +33,8 @@ type weightRoundRobinBalancer struct {
 
 type weightRoundRobinInfo struct {
 	instances       []discovery.Instance
-	entries         []int
-	effectiveWeight []int
-	currentWeight   []int
+	effectiveWeight []int32
+	currentWeight   []int32
 	weightSum       int
 }
 
@@ -47,9 +47,8 @@ func NewWeightRoundRobinBalancer() loadbalance.Loadbalancer {
 func (rr *weightRoundRobinBalancer) calcWeightInfo(e discovery.Result) *weightRoundRobinInfo {
 	w := &weightRoundRobinInfo{
 		instances:       make([]discovery.Instance, len(e.Instances)),
-		entries:         make([]int, len(e.Instances)),
-		effectiveWeight: make([]int, len(e.Instances)),
-		currentWeight:   make([]int, len(e.Instances)),
+		effectiveWeight: make([]int32, len(e.Instances)),
+		currentWeight:   make([]int32, len(e.Instances)),
 		weightSum:       0,
 	}
 
@@ -59,8 +58,7 @@ func (rr *weightRoundRobinBalancer) calcWeightInfo(e discovery.Result) *weightRo
 		weight := e.Instances[idx].Weight()
 		if weight > 0 {
 			w.instances[cnt] = e.Instances[idx]
-			w.entries[cnt] = weight
-			w.effectiveWeight[cnt] = weight
+			w.effectiveWeight[cnt] = int32(weight)
 			w.currentWeight[cnt] = 0
 			w.weightSum += weight
 			cnt++
@@ -70,7 +68,6 @@ func (rr *weightRoundRobinBalancer) calcWeightInfo(e discovery.Result) *weightRo
 	}
 
 	w.instances = w.instances[:cnt]
-
 	return w
 }
 
@@ -91,18 +88,14 @@ func (rr *weightRoundRobinBalancer) Pick(e discovery.Result) discovery.Instance 
 
 	var bestIdx int
 	for idx := range e.Instances {
-		r.currentWeight[idx] += r.effectiveWeight[idx]
+		atomic.AddInt32(&r.currentWeight[idx], r.effectiveWeight[idx])
 		// Pick the index with the biggest weight
 		if r.currentWeight[bestIdx] < r.currentWeight[idx] {
 			bestIdx = idx
 		}
 	}
 
-	if r.instances[bestIdx] == nil {
-		return nil
-	}
-
-	r.currentWeight[bestIdx] -= r.weightSum
+	r.currentWeight[bestIdx] -= int32(r.weightSum)
 	return e.Instances[bestIdx]
 }
 
