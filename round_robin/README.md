@@ -6,7 +6,7 @@ Adapted to Hertz's load balancing round-robin algorithm.
 
 ### Server
 
-**[example/server/main.go](server/main.go)**
+**[example/server/main.go](example/server/main.go)**
 
 ```go
 package main
@@ -59,7 +59,7 @@ func main() {
 
 ### Client
 
-**[example/client/main.go](client/main.go)**
+**[example/client/main.go](example/client/main.go)**
 
 ```go
 package main

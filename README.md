@@ -4,10 +4,9 @@ Expansion of load balancing algorithm adapted to Hertz.
 
 ## Usage
 
-| usage                                              | description                                                  |
-|----------------------------------------------------|--------------------------------------------------------------|
-| [round-robin](round_robin/example)                 | How to use round-robin Algorithms in Load Balancing          |
-| [weighted round-robin](weight_round_robin/example) | How to use weighted round-robin Algorithms in Load Balancing |
+| usage                      | description                                         |
+|----------------------------|-----------------------------------------------------|
+| [round-robin](round_robin) | How to use round-robin algorithms in load balancing |
 
 ## License
 
