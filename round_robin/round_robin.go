@@ -59,20 +59,8 @@ func (rr *roundRobinBalancer) Pick(e discovery.Result) discovery.Instance {
 		return nil
 	}
 
-	var wg sync.WaitGroup
-	var instance discovery.Instance
-	var newIdx uint32
-	wg.Add(1)
-	go func() {
-		newIdx = atomic.AddUint32(&r.index, 1)
-		instance = r.instances[newIdx-1]
-		lens := len(r.instances)
-		atomic.StoreUint32(&r.index, (newIdx)%uint32(lens))
-		wg.Done()
-	}()
-	wg.Wait()
-
-	return instance
+	newIdx := atomic.AddUint32(&r.index, 1)
+	return r.instances[(newIdx-1)%uint32(len(r.instances))]
 }
 
 // Rebalance implements the Loadbalancer interface.
