@@ -4,9 +4,10 @@ Expansion of load balancing algorithm adapted to Hertz.
 
 ## Usage
 
-| usage                      | description                                         |
-|----------------------------|-----------------------------------------------------|
-| [round-robin](round_robin) | How to use round-robin algorithms in load balancing |
+| usage                              | description                                            | readme                                |
+|------------------------------------|--------------------------------------------------------|---------------------------------------|
+| [round-robin](round_robin)         | How to use round-robin algorithms in load balancing    | [readme](./round_robin/README.md)     |
+| [consistent-hash](consistent_hash) | How to use consistent-hash algorithm in load balancing | [readme](./consistent_hash/README.md) |
 
 ## License
 

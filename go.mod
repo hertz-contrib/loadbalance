@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/cloudwego/hertz v0.4.0
 	github.com/hertz-contrib/registry/nacos v0.0.0-20221111034347-1885e5d5c1c9
+	github.com/hertz-contrib/registry/redis v0.0.0-20221226122036-3c451682dc72
 	golang.org/x/sync v0.1.0
 )
 
@@ -14,11 +15,14 @@ require (
 	github.com/bytedance/go-tagexpr/v2 v2.9.2 // indirect
 	github.com/bytedance/gopkg v0.0.0-20220413063733-65bf48ffb3a7 // indirect
 	github.com/bytedance/sonic v1.5.0 // indirect
+	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20211019084208-fb5309c8db06 // indirect
 	github.com/cloudwego/netpoll v0.2.6 // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/go-errors/errors v1.0.1 // indirect
-	github.com/golang/protobuf v1.5.0 // indirect
+	github.com/go-redis/redis/v8 v8.11.5 // indirect
+	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/henrylee2cn/ameda v1.4.10 // indirect
 	github.com/henrylee2cn/goutil v0.0.0-20210127050712-89660552f6f8 // indirect
 	github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af // indirect
