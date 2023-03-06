@@ -4,9 +4,9 @@ Expansion of load balancing algorithm adapted to Hertz.
 
 ## Usage
 
-| usage                      | description                                         |
-|----------------------------|-----------------------------------------------------|
-| [round-robin](round_robin) | How to use round-robin algorithms in load balancing |
+| usage                                                                                                   | description                                         |
+|---------------------------------------------------------------------------------------------------------|-----------------------------------------------------|
+| [round-robin](https://github.com/cloudwego/hertz-examples/tree/main/middleware/loadbalance/round_robin) | How to use round-robin algorithms in load balancing |
 
 ## License
 
